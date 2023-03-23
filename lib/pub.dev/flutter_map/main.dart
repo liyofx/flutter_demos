@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demos/pub.dev/flutter_map/utils.dart';
+import 'package:flutter_demos/pub.dev/geolocator/utils.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -58,6 +59,9 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
   String? currentRoute;
 
   final MapController _mapController = MapController();
+  // 我的位置
+  LatLng? myLocation;
+  LatLng? mapCenter;
 
   @override
   void initState() {
@@ -181,8 +185,10 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
                             }
                           });
                           Scaffold.of(context).closeEndDrawer();
-                          var boundsCenter = _mapController.centerZoomFitBounds(LatLngBounds.fromPoints(routes[currentRoute]![0].points));
-                          _animatedMapMove(zoom: boundsCenter.zoom, dest: boundsCenter.center);
+                          if (currentRoute != null) {
+                            var boundsCenter = _mapController.centerZoomFitBounds(LatLngBounds.fromPoints(routes[currentRoute]![0].points));
+                            _animatedMapMove(zoom: boundsCenter.zoom, dest: boundsCenter.center);
+                          }
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -204,7 +210,18 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
         builder: (context) => Stack(children: [
           FlutterMap(
             mapController: _mapController,
-            options: MapOptions(enableMultiFingerGestureRace: true, center: LatLng(34.776537, 111.14342), zoom: 14, minZoom: 10, maxZoom: 17),
+            options: MapOptions(
+              enableMultiFingerGestureRace: true,
+              center: LatLng(34.776537, 111.14342),
+              zoom: 14,
+              minZoom: 10,
+              maxZoom: 17,
+              onMapEvent: (event) {
+                setState(() {
+                  mapCenter = _mapController.center;
+                });
+              },
+            ),
             nonRotatedChildren: [
               Stack(
                 children: [
@@ -213,6 +230,27 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
                       left: 10,
                       child: Column(
                         children: [
+                          if (selectedKey != null && !LatLngBounds.fromPoints(markers[selectedKey]!.map((e) => e.point).toList().cast<LatLng>()).contains(_mapController.center))
+                            InkWell(
+                              onTap: () {
+                                var fitBounds = _mapController.centerZoomFitBounds(
+                                  LatLngBounds.fromPoints(markers[selectedKey]!.map((e) => e.point).toList().cast<LatLng>()),
+                                  options: FitBoundsOptions(
+                                    padding: EdgeInsets.only(left: 24, right: 24, top: padding.top + 10 + 44 + 10 + 30, bottom: 24),
+                                  ),
+                                );
+                                _animatedMapMove(dest: fitBounds.center, zoom: fitBounds.zoom);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                margin: const EdgeInsets.only(bottom: 10),
+                                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                                child: const Icon(
+                                  Icons.reply_outlined,
+                                  color: Colors.redAccent,
+                                ),
+                              ),
+                            ),
                           Container(
                             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
                             child: Column(
@@ -246,12 +284,22 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
                           const SizedBox(
                             height: 10,
                           ),
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
-                            child: const Icon(
-                              Icons.my_location_outlined,
-                              color: Color(0xFF48c997),
+                          InkWell(
+                            onTap: () {
+                              determinePosition().then((value) {
+                                setState(() {
+                                  myLocation = LatLng(value.latitude, value.longitude);
+                                  _animatedMapMove(dest: myLocation, zoom: 14);
+                                });
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                              child: const Icon(
+                                Icons.my_location_outlined,
+                                color: Color(0xFF48c997),
+                              ),
                             ),
                           )
                         ],

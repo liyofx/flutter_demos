@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_demos/pub.dev/flutter_map/man.dart';
+import 'package:flutter_demos/pub.dev/flutter_map/main.dart';
 
 void main() {
   if (Platform.isAndroid) {
