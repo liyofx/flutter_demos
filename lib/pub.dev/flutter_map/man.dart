@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_demos/pub.dev/flutter_map/utils.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -44,7 +45,7 @@ class ViewCate {
   }
 }
 
-class _MyWidgetState extends State<MyWidget> {
+class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
   Map<ViewCate, List<Marker>> markers = {ViewCate("viwescenic", "景点"): [], ViewCate("toilet", "洗手间"): [], ViewCate("museum", "博物馆"): [], ViewCate("hotel", "住宿"): [], ViewCate("park", "停车场"): [], ViewCate("food", "餐饮"): [], ViewCate("shop", "购物商店"): [], ViewCate("hospital", "医疗点"): [], ViewCate("visitorcenter", "游客中心"): [], ViewCate("exitin", "景区出入口"): [], ViewCate("busstop", "观光车站"): []};
   ViewCate? selectedKey;
   bool showScenicName = true;
@@ -89,107 +90,114 @@ class _MyWidgetState extends State<MyWidget> {
   Widget build(BuildContext context) {
     var padding = MediaQuery.of(context).padding;
     return Scaffold(
-      endDrawer: Drawer(
-        child: Container(
-          padding: EdgeInsets.only(top: padding.top + 10 + 10, left: 15, right: 15),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            ...(title == "设置"
-                ? [
-                    InkWell(
-                      onTap: () => setState(() {
-                        showScenicName = !showScenicName;
-                      }),
-                      child: Container(
-                        height: 44,
-                        child: Row(
-                          children: [
-                            const Text(
-                              "显示景点名称",
-                              style: TextStyle(
-                                fontSize: 14,
+      endDrawer: Builder(
+        builder: (context) => Drawer(
+          child: Container(
+            padding: EdgeInsets.only(top: padding.top + 10 + 10, left: 15, right: 15),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                title,
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              ...(title == "设置"
+                  ? [
+                      InkWell(
+                        onTap: () => setState(() {
+                          showScenicName = !showScenicName;
+                        }),
+                        child: Container(
+                          height: 44,
+                          child: Row(
+                            children: [
+                              const Text(
+                                "显示景点名称",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                            Icon(
-                              showScenicName ? Icons.toggle_on_outlined : Icons.toggle_off_outlined,
-                              color: showScenicName ? const Color(0xFF48c997) : Colors.black,
-                            ),
-                          ],
+                              const Spacer(),
+                              Icon(
+                                showScenicName ? Icons.toggle_on_outlined : Icons.toggle_off_outlined,
+                                color: showScenicName ? const Color(0xFF48c997) : Colors.black,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    InkWell(
-                      onTap: () => setState(() {
-                        showDrawTile = !showDrawTile;
-                      }),
-                      child: Container(
-                        height: 44,
-                        child: Row(
-                          children: [
-                            const Text(
-                              "显示手绘地图",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            const Spacer(),
-                            Icon(
-                              showDrawTile ? Icons.toggle_on_outlined : Icons.toggle_off_outlined,
-                              color: showDrawTile ? const Color(0xFF48c997) : Colors.black,
-                            ),
-                          ],
+                      InkWell(
+                        onTap: () => setState(() {
+                          showDrawTile = !showDrawTile;
+                        }),
+                        child: Container(
+                          height: 44,
+                          child: Row(
+                            children: [
+                              const Text(
+                                "显示手绘地图",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              const Spacer(),
+                              Icon(
+                                showDrawTile ? Icons.toggle_on_outlined : Icons.toggle_off_outlined,
+                                color: showDrawTile ? const Color(0xFF48c997) : Colors.black,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    InkWell(
-                      onTap: () => setState(() {}),
-                      child: Container(
-                        height: 44,
-                        child: Row(
-                          children: [
-                            const Text(
-                              "景点详情",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            const Spacer(),
-                            Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              size: 15,
-                              color: Colors.black54,
-                            ),
-                          ],
+                      InkWell(
+                        onTap: () => setState(() {}),
+                        child: Container(
+                          height: 44,
+                          child: Row(
+                            children: [
+                              const Text(
+                                "景点详情",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              const Spacer(),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 15,
+                                color: Colors.black54,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    )
-                  ]
-                : List.generate(routes.length, (index) {
-                    String name = routes.keys.toList()[index];
-                    return InkWell(
-                      onTap: () => setState(() {
-                        if (currentRoute == name) {
-                          currentRoute = null;
-                        } else {
-                          currentRoute = name;
-                        }
-                      }),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Icon(name == currentRoute ? Icons.radio_button_checked : Icons.radio_button_unchecked),
-                            const SizedBox(width: 10),
-                            Text(name),
-                          ],
+                      )
+                    ]
+                  : List.generate(routes.length, (index) {
+                      String name = routes.keys.toList()[index];
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            if (currentRoute == name) {
+                              currentRoute = null;
+                            } else {
+                              currentRoute = name;
+                            }
+                          });
+                          Scaffold.of(context).closeEndDrawer();
+                          var boundsCenter = _mapController.centerZoomFitBounds(LatLngBounds.fromPoints(routes[currentRoute]![0].points));
+                          _animatedMapMove(zoom: boundsCenter.zoom, dest: boundsCenter.center);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Icon(name == currentRoute ? Icons.radio_button_checked : Icons.radio_button_unchecked),
+                              const SizedBox(width: 10),
+                              Text(name),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  })),
-          ]),
+                      );
+                    })),
+            ]),
+          ),
         ),
       ),
       body: Builder(
@@ -210,7 +218,7 @@ class _MyWidgetState extends State<MyWidget> {
                             child: Column(
                               children: [
                                 InkWell(
-                                  onTap: () => _mapController.move(_mapController.center, _mapController.zoom + 1),
+                                  onTap: () => _animatedMapMove(zoom: _mapController.zoom + 1),
                                   child: const Padding(
                                     padding: EdgeInsets.all(4),
                                     child: Icon(
@@ -223,7 +231,7 @@ class _MyWidgetState extends State<MyWidget> {
                                   height: 5,
                                 ),
                                 InkWell(
-                                  onTap: () => _mapController.move(_mapController.center, _mapController.zoom - 1),
+                                  onTap: () => _animatedMapMove(zoom: _mapController.zoom - 1),
                                   child: const Padding(
                                     padding: EdgeInsets.all(4),
                                     child: Icon(
@@ -339,17 +347,23 @@ class _MyWidgetState extends State<MyWidget> {
                 itemBuilder: (context, index) {
                   var item = markers.keys.toList()[index];
                   var isSelected = item == selectedKey;
+                  var bounding = boundingTextSize(item.name, const TextStyle(fontSize: 14), maxWidth: 200);
                   return InkWell(
                     onTap: () => setState(() {
                       selectedKey = item;
                     }),
                     child: Container(
                       alignment: Alignment.center,
+                      width: bounding.width + 10 * 2,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Text(
-                        item.name,
-                        style: TextStyle(color: isSelected ? Colors.amber : Colors.black45, fontSize: isSelected ? 13 : 12),
-                      ),
+                      child: AnimatedDefaultTextStyle(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.bounceInOut,
+                          style: TextStyle(color: isSelected ? Colors.amber : Colors.black54, fontSize: isSelected ? 14 : 13),
+                          child: Text(
+                            item.name,
+                            strutStyle: StrutStyle(forceStrutHeight: true, height: 1.2),
+                          )),
                     ),
                   );
                 }),
@@ -357,6 +371,34 @@ class _MyWidgetState extends State<MyWidget> {
         ]),
       ),
     );
+  }
+
+  void _animatedMapMove({LatLng? dest, double? zoom, CustomPoint? offset}) {
+    var destLocation = dest != null ? toOffset(dest, _mapController.zoom, offset) : null;
+    // Create some tweens. These serve to split up the transition from one location to another.
+    // In our case, we want to split the transition be<tween> our current map center and the destination.
+    final latTween = Tween<double>(begin: _mapController.center.latitude, end: destLocation == null ? _mapController.center.latitude : destLocation.latitude);
+    final lngTween = Tween<double>(begin: _mapController.center.longitude, end: destLocation == null ? _mapController.center.longitude : destLocation.longitude);
+    final zoomTween = Tween<double>(begin: _mapController.zoom, end: zoom ?? _mapController.zoom);
+
+    // Create a animation controller that has a duration and a TickerProvider.
+    final controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    // The animation determines what path the animation will take. You can try different Curves values, although I found
+    // fastOutSlowIn to be my favorite.
+    final Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+
+    controller.addListener(() {
+      _mapController.move(LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)), zoomTween.evaluate(animation));
+    });
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        controller.dispose();
+      } else if (status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+    controller.forward();
   }
 
   Marker _buildMarker(ViewCate category, Map data, bool isSelected) {
