@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demos/pub.dev/flutter_map/utils.dart';
 import 'package:flutter_demos/pub.dev/geolocator/utils.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -53,7 +54,7 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
   bool showDrawTile = true;
 
   String title = "设置";
-  var drawerChildren = <Widget>[];
+  late String detail;
 
   Map<String, List<Polyline>> routes = {};
   String? currentRoute;
@@ -86,6 +87,7 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
           ];
         });
       });
+      detail = jsn['detail'];
       selectedKey = markers.keys.toList()[0];
     });
   }
@@ -153,7 +155,29 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
                         ),
                       ),
                       InkWell(
-                        onTap: () => setState(() {}),
+                        onTap: () {
+                          setState(() {
+                            Scaffold.of(context).closeEndDrawer();
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                      title: const Text("简介"),
+                                      contentPadding: const EdgeInsets.all(8),
+                                      content: Container(
+                                        constraints: const BoxConstraints(maxHeight: 200),
+                                        child: SingleChildScrollView(
+                                            child: Html(
+                                          data: detail,
+                                          style: {
+                                            "a": Style(color: const Color(0xFF7e8c8d)),
+                                            ".scroll-list-wrap_detail": Style(fontSize: FontSize.percent(100), fontWeight: FontWeight.w400),
+                                            "p": Style(lineHeight: LineHeight.rem(1.7), color: const Color(0xFF343434)),
+                                          },
+                                        )),
+                                      ),
+                                    ));
+                          });
+                        },
                         child: Container(
                           height: 44,
                           child: Row(

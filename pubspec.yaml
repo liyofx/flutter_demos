@@ -31,16 +31,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # 
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.2
+
+  # 地图
   flutter_map: ^3.1.0
   latlong2: ^0.8.0
   # 定位
   geolocator: ^9.0.2
-
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
+  # A Flutter widget for rendering HTML and CSS as Flutter widgets.
+  flutter_html: ^2.2.1
 
 dev_dependencies:
   flutter_test:

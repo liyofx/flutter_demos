@@ -47,5 +47,14 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+  <!-- 网络权限 -->
+  <key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+  <!-- 定位 （NSLocationWhenInUseUsageDescription or NSLocationAlwaysUsageDescription） -->
+  <key>NSLocationWhenInUseUsageDescription</key> 
+  <string>此应用需要访问您的位置</string>
 </dict>
 </plist>
